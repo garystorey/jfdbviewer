@@ -1,0 +1,16 @@
+{
+  "name": "dbviewer",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "db": "npx prisma studio"
+  },
+  "keywords": [],
+  "author": "Gary Storey <garystorey655@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^4.14.0",
+    "prisma": "^4.14.0"
+  }
+}
