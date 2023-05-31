@@ -9,43 +9,74 @@ datasource db {
   relationMode = "prisma"
 }
 
-model Genre {
-  id          String  @id @default(cuid())
-  description String? @db.LongText()
-  name        String  @unique()
-  game        Game[]
+model ButtonEntry {
+  id           String @id @default(cuid())
+  controllerId String
+  buttons      Int
+  timestamp    Int
+
+  @@index(id)
+  @@index([id, controllerId])
+}
+
+model Controller {
+  id      String  @id @unique
+  owner   User?   @relation(fields: [ownerId], references: [id])
+  ownerId String?
+
+  @@index(id)
+  @@index([ownerId])
+}
+
+model Replay {
+  id           String          @id @default(cuid())
+  created      DateTime        @default(now())
+  updated      DateTime        @updatedAt()
+  name         String
+  description  String?
+  controllerId String
+  startTs      Int
+  endTs        Int
+  owner        User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId      String
+  tags         TagsOnReplays[]
+
+  @@index(id)
+  @@index([ownerId])
+}
+
+model Tag {
+  id      String          @id @default(cuid())
+  name    String?
+  replays TagsOnReplays[]
 
   @@index(id)
 }
 
-model Game {
-  id          String      @id @default(cuid())
-  name        String      @unique()
-  description String?     @db.LongText()
-  picture     String      @default("")
-  flagged     Boolean     @default(false)
-  views       Int         @default(0)
-  genreId     String
-  genre       Genre       @relation(fields: [genreId], references: [id])
-  character   Character[]
+model TagsOnReplays {
+  replay   Replay @relation(fields: [replayId], references: [id])
+  replayId String
+  tag      Tag    @relation(fields: [tagId], references: [id])
+  tagId    String
 
-  @@index(id)
-  @@index([genreId])
+  @@id([replayId, tagId])
+  @@index([replayId])
+  @@index([tagId])
 }
 
-model Character {
-  id          String   @id @default(cuid())
-  name        String   @unique()
-  description String?  @db.LongText()
-  picture     String   @default("")
-  flagged     Boolean  @default(false)
-  views       Int      @default(0)
-  gameId      String
-  replay      Replay[]
-  game        Game     @relation(fields: [gameId], references: [id])
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String?      @unique
+  emailVerified DateTime?
+  image         String?
+  nickname      String?      @default("")
+  accounts      Account[]
+  sessions      Session[]
+  Controller    Controller[]
+  Replay        Replay[]
 
   @@index(id)
-  @@index([gameId])
 }
 
 model Account {
@@ -81,57 +112,10 @@ model Session {
   @@index([userId])
 }
 
-model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String?      @unique
-  emailVerified DateTime?
-  image         String?
-  nickname      String?      @default("")
-  accounts      Account[]
-  sessions      Session[]
-  flagged       Boolean      @default(false)
-  Controller    Controller[]
-
-  @@index(id)
-}
-
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
 
   @@unique([identifier, token])
-}
-
-model Replay {
-  id           String     @id @default(cuid())
-  name         String     @default("")
-  description  String?    @default("") @db.LongText()
-  characterId  String
-  controllerId String
-  picture      String     @default("")
-  video        String     @default("")
-  views        Int        @default(0)
-  created      DateTime   @default(now())
-  updated      DateTime   @updatedAt()
-  published    Boolean    @default(false)
-  flagged      Boolean    @default(false)
-  data         Json
-  character    Character  @relation(fields: [characterId], references: [id])
-  controller   Controller @relation(fields: [controllerId], references: [id])
-
-  @@index(id)
-  @@index([characterId])
-  @@index([controllerId])
-}
-
-model Controller {
-  id           String   @id @default(cuid())
-  serialNumber String
-  ownerId      String
-  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  Replay       Replay[]
-
-  @@index([ownerId])
 }
