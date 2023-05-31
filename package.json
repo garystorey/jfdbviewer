@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "db": "npx prisma studio"
+    "db": "npx prisma studio",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push"
   },
   "keywords": [],
   "author": "Gary Storey <garystorey655@gmail.com>",
